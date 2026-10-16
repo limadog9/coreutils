@@ -237,9 +237,8 @@ impl Add for BytesCell {
     }
 }
 
-/// A `Cell` in the table. We store raw `bytes` as the data (e.g. directory name
-/// may be non-Unicode). We also record the printed `width` for alignment purpose,
-/// as it is easier to compute on the original string.
+/// A table cell holding raw `bytes` (directory names may be non-Unicode)
+/// and an estimated display `width` for column alignment.
 struct Cell {
     bytes: Vec<u8>,
     width: usize,
@@ -265,7 +264,12 @@ impl Cell {
         }
     }
 
-    /// Create a cell from an `OsString`
+    /// Create a cell from an `OsString`.
+    ///
+    /// Preserve the original bytes so non-Unicode names are printed unchanged.
+    /// The lossy conversion is only for estimating column padding: invalid
+    /// sequences become replacement characters. This does not guarantee the
+    /// same width as the raw bytes, which terminals may display differently.
     fn from_os_string(os: &OsString) -> Self {
         Self {
             bytes: uucore::os_str_as_bytes(os).unwrap().to_vec(),
