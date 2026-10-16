@@ -335,3 +335,30 @@ mod diagnostics {
         assert!(!stderr.contains(":1:"), "{stderr}");
     }
 }
+
+#[test]
+#[cfg(all(target_os = "linux", feature = "feat_selinux", feature = "feat_smack"))]
+fn test_security_contexts_disabled() {
+    use std::os::unix::fs::FileTypeExt;
+
+    if uucore::selinux::is_selinux_enabled() || uucore::smack::is_smack_enabled() {
+        return;
+    }
+    let scene = TestScenario::new(util_name!());
+    for (option, file, warning) in [
+        ("-Z", "default", ""),
+        (
+            "--context=some_context",
+            "explicit",
+            "mknod: warning: ignoring --context; it requires an SELinux/SMACK-enabled kernel\n",
+        ),
+    ] {
+        scene
+            .ucmd()
+            .args(&[option, file, "p"])
+            .succeeds()
+            .no_stdout()
+            .stderr_is(warning);
+        assert!(scene.fixtures.metadata(file).file_type().is_fifo());
+    }
+}

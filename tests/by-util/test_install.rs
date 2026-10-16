@@ -3382,3 +3382,28 @@ fn test_install_will_not_overwrite_just_created() {
 
     assert_eq!(at.read("c/f"), "a");
 }
+
+#[test]
+#[cfg(all(target_os = "linux", feature = "feat_selinux", feature = "feat_smack"))]
+fn test_security_contexts_disabled() {
+    if uucore::selinux::is_selinux_enabled() || uucore::smack::is_smack_enabled() {
+        return;
+    }
+    let scene = TestScenario::new(util_name!());
+    scene.fixtures.write("source", "contents");
+    for (option, warning) in [
+        ("-Z", ""),
+        (
+            "--context=some_context",
+            "install: warning: ignoring --context; it requires an SELinux-enabled kernel\n",
+        ),
+    ] {
+        scene
+            .ucmd()
+            .args(&[option, "source", "dest"])
+            .succeeds()
+            .no_stdout()
+            .stderr_is(warning);
+        assert_eq!(scene.fixtures.read("dest"), "contents");
+    }
+}
