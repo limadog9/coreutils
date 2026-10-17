@@ -1,0 +1,324 @@
+{
+  "implementation_sha": "8165b5aeaebf9a7af2559fc6549f923905a852fe",
+  "original_base_sha": "dd74d76072c69ae9ef1effb50599d49d6f360898",
+  "runtime_comparison_builds": {
+    "original_base": {
+      "source_sha": "dd74d76072c69ae9ef1effb50599d49d6f360898",
+      "umask": "022",
+      "environment_overrides": {
+        "CARGO_TARGET_DIR": "/workspace/gnu-parser-target",
+        "CARGO_INCREMENTAL": "0",
+        "LANG": "C",
+        "LC_ALL": "C",
+        "RUSTFLAGS": "",
+        "RUSTDOCFLAGS": ""
+      },
+      "features": "cat,rm,ls,dir,vdir,true,basename,wc,feat_diagnostics",
+      "profile": {
+        "name": "release",
+        "lto": "fat",
+        "panic": "abort",
+        "codegen-units": 1
+      },
+      "compiler": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+      "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "binaries": {
+        "coreutils": {
+          "bytes": 4443240,
+          "sha256": "36a8dc1c22eb37bdc9ac7edafb7e462790218824320edb649dd2983f05bd9aea"
+        },
+        "cat": {
+          "bytes": 1384528,
+          "sha256": "e077f32cc748003c1f81f9edb9d0139c7b72f5741d5a9c2ffed2c1efe4140d7c"
+        },
+        "rm": {
+          "bytes": 1635120,
+          "sha256": "a3023795d89c9c90da4a37357c83c8b8d773127aca46addf680813449ed0b77d"
+        },
+        "ls": {
+          "bytes": 3936272,
+          "sha256": "e056912c7468d970daf686b884978b6f8d1abac40a1ea19f7efa89c519e496a3"
+        },
+        "dir": {
+          "bytes": 2669752,
+          "sha256": "59d742e66c938a2d1b52ca3263b875b05369c1b0bd6d06e1a2fe48f893ed548e"
+        },
+        "vdir": {
+          "bytes": 2669720,
+          "sha256": "af47dd0d2c06edb0cd009c952af49087530a34e81d9fa76433c9f5c4d1058183"
+        },
+        "true": {
+          "bytes": 1140384,
+          "sha256": "300723f849d96b6e24a4947045b29908e10f51acff90797201acac664efae694"
+        },
+        "basename": {
+          "bytes": 1353280,
+          "sha256": "52e283e514494f40dd908f64a1109b856c629d188475f8e55d9968135f3a3a82"
+        },
+        "wc": {
+          "bytes": 1539984,
+          "sha256": "493218fe4a419299b082588ead34bde00633f5f0ac0a6e048eebec3ef4615190"
+        }
+      }
+    },
+    "corrected_1996": {
+      "source_sha": "1996cba59884de9a15ed086045fc8f268749da5d",
+      "umask": "022",
+      "environment_overrides": {
+        "CARGO_TARGET_DIR": "/workspace/gnu-parser-target",
+        "CARGO_INCREMENTAL": "0",
+        "LANG": "C",
+        "LC_ALL": "C",
+        "RUSTFLAGS": "",
+        "RUSTDOCFLAGS": ""
+      },
+      "features": "cat,rm,ls,dir,vdir,true,basename,wc,feat_diagnostics",
+      "profile": {
+        "name": "release",
+        "lto": "fat",
+        "panic": "abort",
+        "codegen-units": 1
+      },
+      "compiler": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+      "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "binaries": {
+        "coreutils": {
+          "bytes": 4400320,
+          "sha256": "7a7a7e3b8188e3a14b8de0a07d359a1f43256d594790e5d6635e324376628b67"
+        },
+        "cat": {
+          "bytes": 1330056,
+          "sha256": "551fe9c31d60b72fa5fa58e0e78e1156431f05da903e6f9f0466e850dc78d6e7"
+        },
+        "rm": {
+          "bytes": 1579016,
+          "sha256": "3e8123d98e7dc565c74d4822ab4126040ac27c1b45300f53fa0778540e51d50f"
+        },
+        "ls": {
+          "bytes": 3730408,
+          "sha256": "f223ad23c91454f9437fd030cf035626605985d5f05f7e5b3315cb95839da36c"
+        },
+        "dir": {
+          "bytes": 2466184,
+          "sha256": "beb5fe020b70d0cd70fc70ec205298a29d233eefcf313900df283fd0ad999e0d"
+        },
+        "vdir": {
+          "bytes": 2466224,
+          "sha256": "2ea0096c1a996565b214dd48bbd026ee154ec01ece626cfdf2cf0358f6b96ab9"
+        },
+        "true": {
+          "bytes": 1140816,
+          "sha256": "bd4db616cc1ee0b768e0c42c75c239ec940c634813b0b9e9a58506a4b90c455f"
+        },
+        "basename": {
+          "bytes": 1353560,
+          "sha256": "36c556b61033ccbb72e34e916e66459aef84b493090834b98eee53ae88582051"
+        },
+        "wc": {
+          "bytes": 1540512,
+          "sha256": "449e99940b096568450323c9f8e716ed8440545259cd974c06b762551a5dfcb6"
+        }
+      }
+    },
+    "final": {
+      "source_sha": "9e134129838646b036827d2a9eef57b36c590072",
+      "umask": "022",
+      "environment_overrides": {
+        "CARGO_TARGET_DIR": "/workspace/gnu-parser-target",
+        "CARGO_INCREMENTAL": "0",
+        "LANG": "C",
+        "LC_ALL": "C",
+        "RUSTFLAGS": "",
+        "RUSTDOCFLAGS": ""
+      },
+      "features": "cat,rm,ls,dir,vdir,true,basename,wc,feat_diagnostics",
+      "profile": {
+        "name": "release",
+        "lto": "fat",
+        "panic": "abort",
+        "codegen-units": 1
+      },
+      "compiler": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+      "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+      "binaries": {
+        "coreutils": {
+          "bytes": 4405744,
+          "sha256": "4e8b74b1bc6ee62ae32db3557198e4caf7ae1fef235fb1daa64d279e7affc375"
+        },
+        "cat": {
+          "bytes": 1330056,
+          "sha256": "551fe9c31d60b72fa5fa58e0e78e1156431f05da903e6f9f0466e850dc78d6e7"
+        },
+        "rm": {
+          "bytes": 1578264,
+          "sha256": "1011846b997c6870ca6d4783c1e10894769aced0481af49d1ecd1a30837270ab"
+        },
+        "ls": {
+          "bytes": 3730408,
+          "sha256": "f223ad23c91454f9437fd030cf035626605985d5f05f7e5b3315cb95839da36c"
+        },
+        "dir": {
+          "bytes": 2466184,
+          "sha256": "beb5fe020b70d0cd70fc70ec205298a29d233eefcf313900df283fd0ad999e0d"
+        },
+        "vdir": {
+          "bytes": 2466224,
+          "sha256": "2ea0096c1a996565b214dd48bbd026ee154ec01ece626cfdf2cf0358f6b96ab9"
+        },
+        "true": {
+          "bytes": 1140816,
+          "sha256": "bd4db616cc1ee0b768e0c42c75c239ec940c634813b0b9e9a58506a4b90c455f"
+        },
+        "basename": {
+          "bytes": 1353560,
+          "sha256": "36c556b61033ccbb72e34e916e66459aef84b493090834b98eee53ae88582051"
+        },
+        "wc": {
+          "bytes": 1540512,
+          "sha256": "449e99940b096568450323c9f8e716ed8440545259cd974c06b762551a5dfcb6"
+        }
+      }
+    }
+  },
+  "multicall_build_argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--locked",
+    "--no-default-features",
+    "--features",
+    "cat,rm,ls,dir,vdir,true,basename,wc,feat_diagnostics",
+    "--bin",
+    "coreutils"
+  ],
+  "standalone_build_argv": [
+    "cargo",
+    "build",
+    "--release",
+    "--locked",
+    "-p",
+    "uu_cat",
+    "-p",
+    "uu_rm",
+    "-p",
+    "uu_ls",
+    "-p",
+    "uu_dir",
+    "-p",
+    "uu_vdir",
+    "-p",
+    "uu_true",
+    "-p",
+    "uu_basename",
+    "-p",
+    "uu_wc",
+    "--features",
+    "uucore/diagnostics"
+  ],
+  "build_to_final_equivalence": {
+    "built_source_sha": "9e134129838646b036827d2a9eef57b36c590072",
+    "final_sha": "8165b5aeaebf9a7af2559fc6549f923905a852fe",
+    "difference": "Only tests/by-util/test_rm.rs spelling directive; source/Cargo.toml/Cargo.lock/build.rs identical.",
+    "same_production_trees": {
+      "src": true,
+      "Cargo.toml": true,
+      "Cargo.lock": true,
+      "build.rs": true
+    }
+  },
+  "five_utility_tooling_and_gnu_build": {
+    "source_sha": "8165b5aeaebf9a7af2559fc6549f923905a852fe",
+    "multicall_argv": [
+      "cargo",
+      "build",
+      "--offline",
+      "--release",
+      "--locked",
+      "--no-default-features",
+      "--features",
+      "cat,rm,ls,dir,vdir,feat_diagnostics",
+      "--bin",
+      "coreutils"
+    ],
+    "uudoc_argv": [
+      "cargo",
+      "build",
+      "--offline",
+      "--release",
+      "--locked",
+      "--no-default-features",
+      "--features",
+      "cat,rm,ls,dir,vdir,feat_diagnostics,uudoc",
+      "--bin",
+      "uudoc"
+    ],
+    "binary_metadata": {
+      "source_sha": "8165b5aeaebf9a7af2559fc6549f923905a852fe",
+      "command_record": "review-five-release.command.json",
+      "bytes": 4079024,
+      "sha256": "f75bb00d08acab73fb1afabac9c0fde1d7d4a546391fdaa2ea52f5bdbfae1143",
+      "uudoc": {
+        "command_record": "review-five-uudoc-release.command.json",
+        "bytes": 6001016,
+        "sha256": "54c76b0f8bc682ba4fc7bee7a1147acf509da76b1793f7217a02f03d5e31670b"
+      }
+    }
+  },
+  "fresh_checks": {
+    "checker_self_tests": 29,
+    "python_ci_total_including_checker": 63,
+    "uucore_library": 108,
+    "parser_tests_included_in_uucore": 25,
+    "utility_library": {
+      "cat": 9,
+      "rm": 4,
+      "ls": 25,
+      "dir": 0,
+      "vdir": 0
+    },
+    "integration_diagnostics": {
+      "outside_confined_root": 404,
+      "confined_root": 5,
+      "preexisting_ignored": 3
+    },
+    "integration_plain": {
+      "outside_confined_root": 396,
+      "confined_root": 5,
+      "preexisting_ignored": 3
+    },
+    "public_adapter": 905,
+    "separate_prior_adapter_exclusion_argument_cases": 4,
+    "controlled_repetitions_of_prior_adapter_exclusions": 12,
+    "independent_checker_context_pinned_gnu_probes": 33,
+    "gnu_workflow": {
+      "passed": 47,
+      "skipped_missing_gdb": 1,
+      "failed": 0
+    },
+    "tooling_and_localized_diagnostics_processes": 492,
+    "french_lazy_error_library": 3,
+    "musl_parser_native": 25,
+    "i686_musl_parser_qemu": 25,
+    "wasi_parser_wasmtime": 23
+  },
+  "compilation_checks_only": [
+    "Windows GNU utility/parser all-target checks",
+    "WASI utility all-target check",
+    "Rust 1.88.0 MSRV check",
+    "SMACK feature check"
+  ],
+  "unverified_or_limited": [
+    "Strict gate is not green: all three seeds exit1 on201 explained changed diagnostic/interface results. No maintainer approval is claimed.",
+    "Windows binaries were compiled, not executed.",
+    "Native macOS/BSD execution was not verified; non-Linux validation was limited to the recorded Windows compilation and WASI execution/checks.",
+    "No new full-feature release build; runtime comparisons use eight selected utilities, tooling/GNU harness use five.",
+    "No new SELinux build: previous original-base/final attempts lacked required host headers.",
+    "GNU r-root workflow test skipped for missing gdb; confined Rust root-protection tests did execute.",
+    "Three existing integration ignores retained: cat write-error terminal test, ls birth-time ordering, rm issue3722.",
+    "Public adapter helpers were freshly executed after exact linked-library and source-tree verification, not freshly rebuilt.",
+    "Historical inherited TABSIZE/COLORTERM values are unavailable; fresh observed parser inputs are retained explicitly.",
+    "Pipe-based differential corpus does not establish all terminal behavior or all argument combinations.",
+    "Allocations were not measured; no allocation improvement is claimed.",
+    "Only rm and true/basename/wc controls were freshly timed; prior other-utility/reviewed7d19 timings were not rerun."
+  ]
+}
