@@ -10,13 +10,13 @@ use std::env;
 use std::ffi::OsString;
 use std::fmt::Write as _;
 use std::fs::File;
-use std::io::{BufRead, BufReader, Write, stdout};
+use std::io::{self, BufRead, BufReader, Write, stdout};
 use std::path::Path;
 
 use clap::{Arg, ArgAction, Command};
 use uucore::colors::{FILE_ATTRIBUTE_CODES, FILE_COLORS, FILE_TYPES, TERMS};
 use uucore::display::Quotable;
-use uucore::error::{UResult, USimpleError, UUsageError};
+use uucore::error::{UResult, USimpleError, UUsageError, strip_errno};
 use uucore::translate;
 
 use uucore::{format_usage, parser::parse_glob};
@@ -174,9 +174,9 @@ pub fn uumain(args: impl uucore::Args) -> UResult<()> {
         )),
         [file_arg] => {
             let result = if *file_arg == "-" {
-                let fin = BufReader::new(std::io::stdin());
+                let fin = BufReader::new(io::stdin());
                 // For example, for echo "owt 40;33"|dircolors -b -
-                parse(fin.lines().map_while(Result::ok), &out_format, "-")
+                parse_reader(fin, &out_format, "-")
             } else {
                 let path = Path::new(&file_arg);
                 if path.is_dir() {
@@ -188,11 +188,7 @@ pub fn uumain(args: impl uucore::Args) -> UResult<()> {
                 let file = File::open(path)
                     .map_err(|e| USimpleError::new(1, format!("{}: {e}", path.maybe_quote())))?;
                 let fin = BufReader::new(file);
-                parse(
-                    fin.lines().map_while(Result::ok),
-                    &out_format,
-                    &path.to_string_lossy(),
-                )
+                parse_reader(fin, &out_format, &path.to_string_lossy())
             };
 
             let string = result.map_err(|s| USimpleError::new(1, s))?;
@@ -311,6 +307,28 @@ enum ParseState {
     Matched,
     Continue,
     Pass,
+}
+
+fn parse_reader(reader: impl BufRead, fmt: &OutputFmt, fp: &str) -> Result<String, String> {
+    let mut read_error = None;
+    let lines = reader.lines().map_while(|line| match line {
+        Ok(line) => Some(line),
+        Err(error) => {
+            // Keep the existing handling of lines that are not valid UTF-8.
+            if error.kind() != io::ErrorKind::InvalidData {
+                read_error = Some(error);
+            }
+            None
+        }
+    });
+    let result = parse(lines, fmt, fp);
+    if let Some(error) = read_error {
+        Err(
+            translate!("dircolors-error-read", "file" => fp.maybe_quote(), "error" => strip_errno(&error)),
+        )
+    } else {
+        result
+    }
 }
 
 fn parse<T>(user_input: T, fmt: &OutputFmt, fp: &str) -> Result<String, String>
@@ -506,6 +524,25 @@ fn generate_dircolors_config() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_read_error_after_valid_config() {
+        struct FailingReader(io::Cursor<&'static [u8]>);
+
+        impl io::Read for FailingReader {
+            fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+                match io::Read::read(&mut self.0, buf)? {
+                    0 => Err(io::Error::other("config read failed")),
+                    count => Ok(count),
+                }
+            }
+        }
+
+        uucore::locale::setup_localization("dircolors").unwrap();
+        let reader = BufReader::new(FailingReader(io::Cursor::new(b"DIR 01;34\n")));
+        let error = parse_reader(reader, &OutputFmt::Shell, "config").unwrap_err();
+        assert_eq!(error, "config: read error: config read failed");
+    }
 
     #[test]
     fn test_escape() {

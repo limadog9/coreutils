@@ -5,9 +5,28 @@
 
 // spell-checker:ignore overridable colorterm
 
-#[cfg(target_os = "linux")]
+#[cfg(unix)]
 use uutests::at_and_ucmd;
 use uutests::new_ucmd;
+
+#[test]
+#[cfg(target_os = "linux")]
+fn test_file_read_error() {
+    new_ucmd!()
+        .args(&["-b", "/proc/self/mem"])
+        .fails_with_code(1)
+        .stderr_only("dircolors: /proc/self/mem: read error: Input/output error\n");
+}
+
+#[test]
+#[cfg(unix)]
+fn test_stdin_read_error() {
+    let (at, mut ucmd) = at_and_ucmd!();
+    ucmd.args(&["-b", "-"])
+        .set_stdin(std::fs::File::open(at.plus(".")).unwrap())
+        .fails_with_code(1)
+        .stderr_only("dircolors: -: read error: Is a directory\n");
+}
 
 #[test]
 #[cfg(target_os = "linux")]

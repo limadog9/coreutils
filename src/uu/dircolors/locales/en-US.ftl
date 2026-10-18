@@ -21,3 +21,4 @@ dircolors-error-extra-operand = extra operand { $operand }
 dircolors-error-expected-file-got-directory = expected file, got directory { $path }
 dircolors-error-invalid-line-missing-token = { $file }:{ $line }: invalid line;  missing second token
 dircolors-error-unrecognized-keyword = unrecognized keyword { $keyword }
+dircolors-error-read = { $file }: read error: { $error }
