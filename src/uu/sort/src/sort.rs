@@ -305,6 +305,8 @@ pub struct GlobalSettings {
     reverse: bool,
     stable: bool,
     unique: bool,
+    #[cfg(not(target_os = "wasi"))]
+    parallel_threads: usize,
     check: bool,
     check_silent: bool,
     salt: Option<[u8; 16]>,
@@ -499,6 +501,8 @@ impl Default for GlobalSettings {
             reverse: false,
             stable: false,
             unique: false,
+            #[cfg(not(target_os = "wasi"))]
+            parallel_threads: 0,
             check: false,
             check_silent: false,
             salt: None,
@@ -2289,9 +2293,7 @@ pub fn uumain(args: impl uucore::Args) -> UResult<()> {
             .get_one::<u64>(options::PARALLEL)
             .copied()
             .unwrap_or_else(|| std::thread::available_parallelism().map_or(1, |n| n.get() as u64));
-        let _ = rayon::ThreadPoolBuilder::new()
-            .num_threads(threads as usize)
-            .build_global();
+        settings.parallel_threads = usize::try_from(threads).unwrap_or(usize::MAX);
     }
 
     if let Some(size_str) = matches.get_one::<String>(options::BUF_SIZE) {
@@ -2784,6 +2786,21 @@ fn exec(
 
 fn sort_by<'a>(unsorted: &mut Vec<Line<'a>>, settings: &GlobalSettings, line_data: &LineData<'a>) {
     let cmp = |a: &Line<'a>, b: &Line<'a>| compare_by(a, b, settings, line_data, line_data);
+    #[cfg(not(target_os = "wasi"))]
+    {
+        // Small runs are cheaper to sort directly than to start worker threads.
+        if unsorted.len() <= 20 {
+            if settings.stable || settings.unique {
+                unsorted.sort_by(cmp);
+            } else {
+                unsorted.sort_unstable_by(cmp);
+            }
+            return;
+        }
+        let _ = rayon::ThreadPoolBuilder::new()
+            .num_threads(settings.parallel_threads)
+            .build_global();
+    }
     // WASI does not support threads, so use non-parallel sort to avoid
     // rayon's thread pool which triggers an unreachable trap.
     if settings.stable || settings.unique {
