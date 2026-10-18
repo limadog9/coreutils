@@ -29,6 +29,7 @@ use std::cell::OnceCell;
 use std::ffi::{OsStr, OsString};
 use std::fs::{FileType, Metadata};
 use std::io::{self, Write};
+use std::os::fd::AsFd;
 use std::os::unix::fs::{FileTypeExt, MetadataExt};
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -1136,12 +1137,9 @@ impl Stater {
     }
 
     fn exec(&self) -> UResult<i32> {
-        let stdin_is_fifo = rustix::fs::fstat(io::stdin())
-            .is_ok_and(|s| rustix::fs::FileType::from_raw_mode(s.st_mode).is_fifo());
-
         let mut ret = 0;
         for f in &self.files {
-            ret |= self.do_stat(f, stdin_is_fifo)?;
+            ret |= self.do_stat(f)?;
         }
         Ok(ret)
     }
@@ -1333,19 +1331,16 @@ impl Stater {
         }
     }
 
-    fn do_stat(&self, file: &OsStr, stdin_is_fifo: bool) -> UResult<i32> {
+    fn do_stat(&self, file: &OsStr) -> UResult<i32> {
         let display_name = file.to_string_lossy();
         let quoted_name = || quote_file_name(file, QuotingStyle::SHELL_ESCAPE_ALWAYS);
-        let file = if cfg!(unix) && display_name == "-" {
+        let is_stdin = file == "-";
+        let file = if is_stdin {
             if self.show_fs {
                 show_error!("{}", StatError::StdinFilesystemMode);
                 return Ok(1);
             }
-            if let Ok(p) = Path::new("/dev/stdin").canonicalize() {
-                p.into_os_string()
-            } else {
-                OsString::from("/dev/stdin")
-            }
+            OsString::from("/dev/stdin")
         } else {
             OsString::from(file)
         };
@@ -1374,8 +1369,14 @@ impl Stater {
                 }
             }
         } else {
-            let follow_symbolic_links = self.follow || stdin_is_fifo && display_name == "-";
-            let result = if follow_symbolic_links {
+            let follow_symbolic_links = self.follow || is_stdin;
+            let result = if is_stdin {
+                // Query the open input even when it has no path or its name was replaced.
+                io::stdin()
+                    .as_fd()
+                    .try_clone_to_owned()
+                    .and_then(|fd| fs::File::from(fd).metadata())
+            } else if follow_symbolic_links {
                 fs::metadata(&file)
             } else {
                 fs::symlink_metadata(&file)

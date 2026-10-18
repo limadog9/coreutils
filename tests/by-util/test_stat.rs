@@ -446,17 +446,8 @@ fn test_pipe_fifo() {
         .stdout_contains("File: FIFO");
 }
 
-// TODO(#7583): Re-enable on Mac OS X (and possibly other Unix platforms)
 #[test]
-#[cfg(all(
-    unix,
-    not(any(
-        target_vendor = "apple",
-        target_os = "android",
-        target_os = "freebsd",
-        target_os = "openbsd"
-    ))
-))]
+#[cfg(unix)]
 fn test_stdin_pipe_fifo1() {
     // $ echo | stat -
     // File: -
@@ -477,9 +468,8 @@ fn test_stdin_pipe_fifo1() {
         .stdout_contains("File: -");
 }
 
-// TODO(#7583): Re-enable on Mac OS X (and maybe Android)
 #[test]
-#[cfg(all(unix, not(any(target_vendor = "apple", target_os = "android"))))]
+#[cfg(unix)]
 fn test_stdin_pipe_fifo2() {
     // $ stat -
     // File: -
@@ -491,6 +481,43 @@ fn test_stdin_pipe_fifo2() {
         .no_stderr()
         .stdout_contains("character special file")
         .stdout_contains("File: -");
+}
+
+#[test]
+fn test_stdin_unlinked_file() {
+    let ts = TestScenario::new(util_name!());
+    let path = ts.fixtures.plus("input");
+    std::fs::write(&path, b"original data").unwrap();
+    let input = File::open(&path).unwrap();
+    let metadata = input.metadata().unwrap();
+    std::fs::remove_file(&path).unwrap();
+
+    ts.ucmd()
+        .args(&["-c", "%s %F %i", "-", "-"])
+        .set_stdin(input)
+        .succeeds()
+        .stdout_only(format!(
+            "13 regular file {}\n13 regular file {}\n",
+            metadata.ino(),
+            metadata.ino()
+        ));
+}
+
+#[test]
+fn test_stdin_replaced_file() {
+    let ts = TestScenario::new(util_name!());
+    let path = ts.fixtures.plus("input");
+    std::fs::write(&path, b"original data").unwrap();
+    let input = File::open(&path).unwrap();
+    let metadata = input.metadata().unwrap();
+    std::fs::rename(&path, ts.fixtures.plus("original")).unwrap();
+    std::fs::write(&path, b"replacement").unwrap();
+
+    ts.ucmd()
+        .args(&["-L", "-c", "%s %F %i", "-"])
+        .set_stdin(input)
+        .succeeds()
+        .stdout_only(format!("13 regular file {}\n", metadata.ino()));
 }
 
 #[test]
