@@ -199,6 +199,51 @@ fn dd_copy_with_skip(bencher: Bencher) {
     });
 }
 
+/// Benchmark skipping a non-seekable stream instead of seeking a regular file.
+#[cfg(target_os = "linux")]
+#[divan::bench(args = [1, 32])]
+fn dd_copy_with_stream_skip(bencher: Bencher, skip_mib: usize) {
+    use std::io::{self, Write};
+    use std::os::fd::AsRawFd;
+    use std::thread;
+
+    bencher
+        .with_inputs(|| {
+            let temp_dir = TempDir::new().unwrap();
+            let (reader, mut input) = io::pipe().unwrap();
+            let writer = thread::spawn(move || -> io::Result<()> {
+                let buffer = [b'x'; 64 * 1024];
+                for _ in 0..skip_mib * 16 {
+                    input.write_all(&buffer)?;
+                }
+                input.write_all(&[b'y'; 4096])
+            });
+            (temp_dir, reader, writer)
+        })
+        .bench_local_values(|(temp_dir, reader, writer)| {
+            let input = format!("if=/proc/self/fd/{}", reader.as_raw_fd());
+            let output = temp_dir.path().join("output.bin");
+            assert_eq!(
+                black_box(run_util_function(
+                    uumain,
+                    &[
+                        &input,
+                        &format!("of={}", output.display()),
+                        "bs=4K",
+                        &format!("skip={}", skip_mib * 256),
+                        "count=1",
+                        "iflag=fullblock",
+                        "status=none",
+                    ],
+                )),
+                0
+            );
+            drop(reader);
+            writer.join().unwrap().unwrap();
+            assert_eq!(std::fs::read(output).unwrap(), [b'y'; 4096]);
+        });
+}
+
 /// Benchmark dd with seek (seeking in output)
 #[divan::bench]
 fn dd_copy_with_seek(bencher: Bencher) {
