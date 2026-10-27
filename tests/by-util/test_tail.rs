@@ -928,7 +928,11 @@ fn test_follow_with_pid() {
     let (at, mut ucmd) = at_and_ucmd!();
 
     let dummy_cmd = "sh";
-    let mut dummy = Command::new(dummy_cmd).spawn().unwrap();
+    // Keep the shell alive without letting it read the CI script from stdin.
+    let mut dummy = Command::new(dummy_cmd)
+        .stdin(Stdio::piped())
+        .spawn()
+        .unwrap();
     let pid = dummy.id();
 
     let mut child = ucmd
@@ -961,7 +965,7 @@ fn test_follow_with_pid() {
         .with_current_output()
         .stdout_only_fixture("foobar_follow_multiple_appended.expected");
 
-    // kill the dummy process and give tail time to notice this
+    // Tail must notice the process exit without any further file changes.
     kill_process(
         Pid::from_raw(i32::try_from(pid).unwrap()).unwrap(),
         Signal::USR1,
@@ -969,17 +973,7 @@ fn test_follow_with_pid() {
     .unwrap();
     let _ = dummy.wait();
 
-    child.delay(DEFAULT_SLEEP_INTERVAL_MILLIS);
-
-    let third_append = "should\nbe\nignored\n";
-    at.append(FOOBAR_TXT, third_append);
-
-    child
-        .make_assertion_with_delay(DEFAULT_SLEEP_INTERVAL_MILLIS)
-        .is_not_alive()
-        .with_current_output()
-        .no_output()
-        .success();
+    child.wait().unwrap().no_output().success();
 }
 
 #[test]
