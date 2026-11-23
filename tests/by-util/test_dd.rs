@@ -228,6 +228,20 @@ fn test_stdin_stdout_count_bytes() {
         .stdout_only(output);
 }
 
+#[rstest]
+#[case::nul(&["count=5B", "conv=sync"], b"ABCDE\0\0\0")]
+#[case::space(&["count=5B", "conv=sync,block", "cbs=8"], b"ABCDE   ")]
+#[case::swab(&["count=5", "iflag=count_bytes", "conv=sync,swab"], b"BADC\0E\0\0")]
+fn test_sync_pads_byte_limited_block(#[case] args: &[&str], #[case] expected: &[u8]) {
+    let (at, mut ucmd) = at_and_ucmd!();
+    at.write("input", "ABCDEFGH");
+    ucmd.args(&["if=input", "bs=4", "status=noxfer"])
+        .args(args)
+        .succeeds()
+        .stdout_is_bytes(expected)
+        .stderr_is("1+1 records in\n2+0 records out\n");
+}
+
 #[test]
 fn test_stdin_stdout_skip() {
     let input = build_ascii_block(521);

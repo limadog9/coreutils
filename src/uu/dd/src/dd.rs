@@ -547,34 +547,34 @@ impl Input<'_> {
         })
     }
 
-    /// Fills a given buffer.
-    /// Reads in increments of 'self.ibs'.
-    /// The start of each ibs-sized read is aligned to multiples of ibs; remaining space is filled with the 'pad' byte.
+    /// Reads up to `read_limit` input bytes, padding each short block to `ibs`.
     /// Returns the read statistics and the total filled length (reads + padding).
-    fn fill_blocks(&mut self, buf: &mut [u8], pad: u8) -> io::Result<(ReadStat, usize)> {
+    fn fill_blocks(
+        &mut self,
+        buf: &mut [u8],
+        read_limit: usize,
+        pad: u8,
+    ) -> io::Result<(ReadStat, usize)> {
         let mut reads_complete = 0;
         let mut reads_partial = 0;
         let mut base_idx = 0;
         let mut bytes_total = 0;
 
-        while base_idx < buf.len() {
-            let next_blk = cmp::min(base_idx + self.settings.ibs, buf.len());
-            let target_len = next_blk - base_idx;
-
-            match self.read(&mut buf[base_idx..next_blk])? {
-                0 => break,
-                rlen if rlen < target_len => {
-                    bytes_total += rlen;
-                    reads_partial += 1;
-                    buf[base_idx + rlen..next_blk].fill(pad);
-                }
-                rlen => {
-                    bytes_total += rlen;
-                    reads_complete += 1;
-                }
+        while base_idx < read_limit {
+            let block = &mut buf[base_idx..base_idx + self.settings.ibs];
+            let to_read = block.len().min(read_limit - base_idx);
+            let rlen = self.read(&mut block[..to_read])?;
+            if rlen == 0 {
+                break;
             }
-
-            base_idx += self.settings.ibs;
+            if rlen == block.len() {
+                reads_complete += 1;
+            } else {
+                reads_partial += 1;
+                block[rlen..].fill(pad);
+            }
+            bytes_total += rlen;
+            base_idx += block.len();
         }
 
         Ok((
@@ -1488,7 +1488,7 @@ fn alloc_copy_buffer(bsize: usize) -> io::Result<Vec<u8>> {
 fn read_helper<'a>(
     i: &mut Input,
     read_buf: &'a mut AlignedBuf,
-    bsize: usize,
+    read_limit: usize,
 ) -> io::Result<(ReadStat, &'a [u8])> {
     fn perform_swab(buf: &mut [u8]) {
         for base in (1..buf.len()).step_by(2) {
@@ -1497,11 +1497,11 @@ fn read_helper<'a>(
     }
 
     let (rstat, data_len) = {
-        let scratch = &mut read_buf.as_mut_bytes()[..bsize];
+        let scratch = read_buf.as_mut_bytes();
         let (rstat, data_len) = if let Some(ch) = i.settings.iconv.sync {
-            i.fill_blocks(scratch, ch)?
+            i.fill_blocks(scratch, read_limit, ch)?
         } else {
-            let s = i.fill_consecutive(scratch)?;
+            let s = i.fill_consecutive(&mut scratch[..read_limit])?;
             let n = s.bytes_total as usize;
             (s, n)
         };
